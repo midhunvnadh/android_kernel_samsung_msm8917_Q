@@ -160,10 +160,14 @@ struct cpufreq_interactive_tunables {
 
 	/* Whether to enable prediction or not */
 	bool enable_prediction;
+
 #if defined(CONFIG_ARCH_MSM8953) || defined(CONFIG_ARCH_MSM8917)
 
 	unsigned int lpm_disable_freq;
 #endif
+
+	/* Improves frequency selection for more energy */
+	bool powersave_bias;
 };
 
 #if defined(CONFIG_ARCH_MSM8953) || defined(CONFIG_ARCH_MSM8917)
@@ -733,6 +737,8 @@ static int cpufreq_interactive_speedchange_task(void *data)
 	cpumask_t tmp_mask;
 	unsigned long flags;
 	struct cpufreq_interactive_policyinfo *ppol;
+	struct cpufreq_interactive_tunables *tunables;
+	bool display_on = is_display_on();
 
 	while (1) {
 		set_current_state(TASK_INTERRUPTIBLE);
@@ -756,6 +762,7 @@ static int cpufreq_interactive_speedchange_task(void *data)
 
 		for_each_cpu(cpu, &tmp_mask) {
 			ppol = per_cpu(polinfo, cpu);
+			tunables = ppol->policy->governor_data;
 			if (!down_read_trylock(&ppol->enable_sem))
 				continue;
 			if (!ppol->governor_enabled) {
@@ -763,10 +770,16 @@ static int cpufreq_interactive_speedchange_task(void *data)
 				continue;
 			}
 
-			if (ppol->target_freq != ppol->policy->cur)
-				__cpufreq_driver_target(ppol->policy,
-							ppol->target_freq,
-							CPUFREQ_RELATION_H);
+			if (ppol->target_freq != ppol->policy->cur) {
+			    if (tunables->powersave_bias || !display_on)
+				    __cpufreq_driver_target(ppol->policy,
+							    ppol->target_freq,
+							    CPUFREQ_RELATION_C);
+			    else
+				    __cpufreq_driver_target(ppol->policy,
+							    ppol->target_freq,
+							    CPUFREQ_RELATION_H);
+			}
 			trace_cpufreq_interactive_setspeed(cpu,
 						     ppol->target_freq,
 						     ppol->policy->cur);
@@ -1447,6 +1460,25 @@ static ssize_t store_use_migration_notif(
 	return count;
 }
 
+static ssize_t show_powersave_bias(struct cpufreq_interactive_tunables *tunables,
+		char *buf)
+{
+	return sprintf(buf, "%u\n", tunables->powersave_bias);
+}
+
+static ssize_t store_powersave_bias(struct cpufreq_interactive_tunables *tunables,
+		const char *buf, size_t count)
+{
+	int ret;
+	unsigned long val;
+
+	ret = kstrtoul(buf, 0, &val);
+	if (ret < 0)
+		return ret;
+	tunables->powersave_bias = val;
+	return count;
+}
+
 /*
  * Create show/store routines
  * - sys: One governor instance for complete SYSTEM
@@ -1504,6 +1536,7 @@ show_store_gov_pol_sys(enable_prediction);
 #if defined(CONFIG_ARCH_MSM8953) || defined(CONFIG_ARCH_MSM8917)
 show_store_gov_pol_sys(lpm_disable_freq);
 #endif
+show_store_gov_pol_sys(powersave_bias);
 
 #define gov_sys_attr_rw(_name)						\
 static struct global_attr _name##_gov_sys =				\
@@ -1537,6 +1570,7 @@ gov_sys_pol_attr_rw(enable_prediction);
 #if defined(CONFIG_ARCH_MSM8953) || defined(CONFIG_ARCH_MSM8917)
 gov_sys_pol_attr_rw(lpm_disable_freq);
 #endif
+gov_sys_pol_attr_rw(powersave_bias);
 
 static struct global_attr boostpulse_gov_sys =
 	__ATTR(boostpulse, 0200, NULL, store_boostpulse_gov_sys);
@@ -1567,6 +1601,7 @@ static struct attribute *interactive_attributes_gov_sys[] = {
 #if defined(CONFIG_ARCH_MSM8953) || defined(CONFIG_ARCH_MSM8917)
 	&lpm_disable_freq_gov_sys.attr,
 #endif
+	&powersave_bias_gov_sys.attr,
 	NULL,
 };
 
@@ -1598,6 +1633,7 @@ static struct attribute *interactive_attributes_gov_pol[] = {
 #if defined(CONFIG_ARCH_MSM8953) || defined(CONFIG_ARCH_MSM8917)
 	&lpm_disable_freq_gov_pol.attr,
 #endif
+	&powersave_bias_gov_pol.attr,
 	NULL,
 };
 
