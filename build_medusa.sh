@@ -19,7 +19,7 @@ export SUBARCH=arm
 export DEFCONFIG=j4primelte_defconfig
 
 # Keep it as is
-export LOCALVERSION=-$VERSION
+export LOCALVERSION=$VERSION
 
 # Export Username and machine name
 export KBUILD_BUILD_USER=Batu33TR
