@@ -274,8 +274,6 @@ config CPU_FREQ_GOV_ZZMOOVE
  	  % frequency steps to get smooth up/downscaling dependant on CPU load.
  	  If in doubt, say N.
 
-endif
-
 comment "CPU frequency scaling drivers"
 	  
 config CPU_FREQ_GOV_SMARTMAX_EPS
