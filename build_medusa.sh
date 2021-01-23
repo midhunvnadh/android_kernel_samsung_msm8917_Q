@@ -93,7 +93,7 @@ if [ $MRPROPER_SUCCESS != 0 ]
 fi 
 
 # Make your device device_defconfig
-make O=$OUT_DIR ARCH=$ARCH $DEFCONFIG
+make O=$OUT_DIR ARCH=$ARCH KCFLAGS=-mno-android $DEFCONFIG
 DEFCONFIG_SUCCESS=$?
 if [ $DEFCONFIG_SUCCESS != 0 ]
 	then
@@ -102,7 +102,7 @@ if [ $DEFCONFIG_SUCCESS != 0 ]
 fi
 
 # Build Kernel
-make O=$OUT_DIR ARCH=$ARCH -j$(nproc --all)
+make O=$OUT_DIR ARCH=$ARCH KCFLAGS=-mno-android -j$(nproc --all)
 
 # Find how much build has been long
 BUILD_END=$(date +"%s")
