@@ -39,7 +39,7 @@ reset=`tput sgr0`
 if [ $ARCH = arm ]
 	then
 		# Export ARM from the given directory
-		export CROSS_COMPILE=${ROOT_DIR}/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-
+		export CROSS_COMPILE=${ROOT_DIR}/gcc/bin/arm-linux-androideabi-
 elif [ $ARCH = arm64 ]
 	then
 		# Export ARM64 and ARM cross-compliers from the given directory
