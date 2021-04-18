@@ -37,7 +37,7 @@ reset=`tput sgr0`
 
 # Cross-compiler exporting
 	# Export ARM from the given directory
-	export CROSS_COMPILE=~/gcc/bin/arm-linux-androideabi-
+	export CROSS_COMPILE=${HOME}/gcc/bin/arm-linux-androideabi-
 
 echo -e "*****************************************************"
 echo    "            Compiling kernel using GCC               "
