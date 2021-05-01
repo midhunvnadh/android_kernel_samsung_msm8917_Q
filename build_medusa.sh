@@ -16,7 +16,7 @@ export SUBARCH=arm
 
 # Set kernel name and defconfig
 # export VERSION=
-export DEFCONFIG=j4primelte_defconfig
+export DEFCONFIG=j6primelte_defconfig
 
 # Keep it as is
 export LOCALVERSION=$VERSION
