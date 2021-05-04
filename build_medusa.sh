@@ -5,7 +5,7 @@
 # Set defaults directory's
 ROOT_DIR=$(pwd)
 OUT_DIR=$ROOT_DIR/out
-# ANYKERNEL_DIR=$ROOT_DIR/anykernel3
+ANYKERNEL_DIR=$ROOT_DIR/anykernel3
 KERNEL_DIR=$ROOT_DIR
 DATE=$(date +"%m-%d-%y")
 BUILD_START=$(date +"%s")
@@ -81,6 +81,8 @@ if [ $DEFCONFIG_SUCCESS != 0 ]
 		exit
 fi
 
+sh ~/infoscripts/buildstarted.sh
+
 # Build Kernel
 make O=$OUT_DIR ARCH=$ARCH KCFLAGS=-mno-android -j$(nproc --all)
 
@@ -91,11 +93,25 @@ DIFF=$(($BUILD_END - $BUILD_START))
 BUILD_SUCCESS=$?
 if [ $BUILD_SUCCESS != 0 ]
 	then
+		sh ~/buildfailed.sh
 		echo "$red Error: Build failed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset"
 		exit
 fi
 
 
 echo -e "$green Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds $reset"
+
+# Compress compiled image
+cp $OUT_DIR/arch/arm/boot/zImage-dtb $ANYKERNEL_DIR
+zip -r "ProjectMedusa-$(date +"%Y-%m-%d").zip" anykernel3/*
+
+# Upload drive with rclone
+cp ProjectMedusa-*.zip ~/drive/ProjectMedusa/Test/
+sh ~/infoscripts/driveinfo.sh
+
+sleep 5
+
+# Upload to Telegram
+sh ~/infoscripts/buildcompleted.sh
 
 exit
