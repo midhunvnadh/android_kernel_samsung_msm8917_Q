@@ -81,7 +81,7 @@ if [ $DEFCONFIG_SUCCESS != 0 ]
 		exit
 fi
 
-sh ~/infoscripts/buildstarted.sh
+sh ${HOME}/infoscripts/buildstarted.sh
 
 # Build Kernel
 make O=$OUT_DIR ARCH=$ARCH KCFLAGS=-mno-android -j$(nproc --all)
@@ -107,11 +107,11 @@ zip -r "ProjectMedusa-$(date +"%Y-%m-%d").zip" anykernel3/*
 
 # Upload drive with rclone
 cp ProjectMedusa-*.zip ~/drive/ProjectMedusa/Test/
-sh ~/infoscripts/driveinfo.sh
+sh ${HOME}/infoscripts/driveinfo.sh
 
 sleep 5
 
 # Upload to Telegram
-sh ~/infoscripts/buildcompleted.sh
+sh ${HOME}/infoscripts/buildcompleted.sh
 
 exit
