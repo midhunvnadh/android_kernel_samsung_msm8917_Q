@@ -16,7 +16,8 @@ export SUBARCH=arm
 
 # Set kernel name and defconfig
 # export VERSION=
-export DEFCONFIG=j4primelte_defconfig
+DEF=j4primelte_defconfig
+export DEFCONFIG=$DEF
 
 # Keep it as is
 export LOCALVERSION=$VERSION
@@ -70,7 +71,7 @@ if [ $MRPROPER_SUCCESS != 0 ]
 	then
 		echo "$red Error: make mrproper failed"
 		exit
-fi 
+fi
 
 # Make your device device_defconfig
 make O=$OUT_DIR ARCH=$ARCH KCFLAGS=-mno-android $DEFCONFIG
@@ -81,6 +82,8 @@ if [ $DEFCONFIG_SUCCESS != 0 ]
 		exit
 fi
 
+echo "$DEFCONFIG" > defconfigname
+echo "$DEFCONFIG" > ${HOME}/infoscripts/defconfigname
 sh ${HOME}/infoscripts/buildstarted.sh
 
 # Build Kernel
@@ -103,7 +106,12 @@ echo -e "$green Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60))
 
 # Compress compiled image
 cp $OUT_DIR/arch/arm/boot/zImage-dtb $ANYKERNEL_DIR
-zip -r "ProjectMedusa-$(date +"%Y-%m-%d").zip" anykernel3/*
+
+if [ "$DEFCONFIG" = "j4primelte_defconfig]; then
+	zip -r "ProjectMedusa-$(date +"%d-%m-%Y")-j4primelte.zip" anykernel3/*
+else
+	zip -r "ProjectMedusa-$(date +"%d-%m-%Y")-j6primelte.zip" anykernel3/*
+fi
 
 # Upload drive with rclone
 cp ProjectMedusa-*.zip ~/drive/ProjectMedusa/Test/
