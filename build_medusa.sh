@@ -16,7 +16,7 @@ export SUBARCH=arm
 
 # Set kernel name and defconfig
 # export VERSION=
-DEF=j4primelte_defconfig
+DEF=j6primelte_defconfig
 export DEFCONFIG=$DEF
 
 # Keep it as is
@@ -107,7 +107,7 @@ echo -e "$green Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60))
 # Compress compiled image
 cp $OUT_DIR/arch/arm/boot/zImage-dtb $ANYKERNEL_DIR
 
-if [ "$DEFCONFIG" = "j4primelte_defconfig]; then
+if [ "$DEF" = "j4primelte_defconfig" ]; then
 	zip -r "ProjectMedusa-$(date +"%d-%m-%Y")-j4primelte.zip" anykernel3/*
 else
 	zip -r "ProjectMedusa-$(date +"%d-%m-%Y")-j6primelte.zip" anykernel3/*
